@@ -1,4 +1,4 @@
-// Copyright (c) 2024 BlazeInferno64 --> https://github.com/blazeinferno64.
+// Copyright (c) 2025 BlazeInferno64 --> https://github.com/blazeinferno64.
 //
 // Author(s) -> BlazeInferno64
 //
@@ -53,7 +53,7 @@ const processError = (error, reject, resolve, custom, host, port) => {
     } else if (reject) {
         return reject(error); // Rejecting the promise with the original error
     } else {
-        return Promise.resolve(error); // Resolving with the error object if no rejection is needed
+        return Promise.reject(error); // Rejecting with the error object if no rejection is needed
     }
 }
 

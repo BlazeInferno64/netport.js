@@ -1,8 +1,8 @@
-// Copyright (c) 2024 BlazeInferno64 --> https://github.com/blazeinferno64.
+// Copyright (c) 2025 BlazeInferno64 --> https://github.com/blazeinferno64.
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 31/12/2024
+// Last updated: 10/01/2025
 
 "use strict";
 
@@ -11,7 +11,7 @@ const { check_TCP_PORT, test_IP, } = require("./utils/TCP");
 const { check_UDP_PORT } = require("./utils/UDP");
 
 const packageJson = require("../package.json");
-const supportedSchemas = new Set(['data:', 'http:', 'https:']);
+const supportedSchemas = new Set(['TCP', 'UDP']);
 
 
 /**
