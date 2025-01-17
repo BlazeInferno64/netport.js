@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 31/12/2024
+// Last updated: 17/01/2025
 
 // Type definitions for 'netport'
 
@@ -86,6 +86,12 @@ interface SecondInputObject {
      * If not specified, netport will default to 'TCP'.
      */
     type?: "TCP" | "UDP";
+    /**
+     * The maximum number of concurrent port checks to perform.
+     * 
+     * If not specified, netport will default to '100' max concurrent connections.
+    */
+    maxConcurrency?: number
 }
 
 interface AboutObject {
@@ -109,7 +115,7 @@ interface AboutObject {
      * Repository of the package.
      */
     Respository: string;
-  }
+}
 
 interface Netport {
     /**
@@ -136,7 +142,7 @@ interface Netport {
      *      console.error(err);
      * });
      */
-    scanPort(inputObj: InputObject ): Promise<ResultObject>;
+    scanPort(inputObj: InputObject): Promise<ResultObject>;
 
     /**
      * Scans the given TCP/UDP ports present on a given host.
@@ -195,21 +201,21 @@ interface Netport {
      */
     check_IP(ip: String): IpResultObject;
 
-     /**
-     * @returns {AboutObject<Object>} Returns a object which contains some info regarding netport.
-     * @example 
-     * console.log(netport.ABOUT()); 
-     * // Logging the about object to the console.
-    */
-    ABOUT(): AboutObject;
+    /**
+    * @returns {AboutObject<Object>} Returns a object which contains some info regarding netport.
+    * @example 
+    * console.log(netport.ABOUT); 
+    * // Logging the about object to the console.
+   */
+    ABOUT: AboutObject;
 
-     /**
-     * @returns {String} returns the package version.
-     * @example 
-     * console.log(netport.VERSION()); 
-     * // Logging the about object to the console.
-    */
-     VERSION(): String;
+    /**
+    * @returns {String} returns the package version.
+    * @example 
+    * console.log(netport.VERSION); 
+    * // Logging the about object to the console.
+   */
+    VERSION: String;
 }
 
 /**

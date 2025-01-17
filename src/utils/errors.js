@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 31/12/2024
+// Last updated: 17/01/2025
 
 "use strict";
 
@@ -50,6 +50,13 @@ const processError = (error, reject, resolve, custom, host, port) => {
         err.name = `Timeout_Error`;
         err.message = `Timeout waiting for response from ${host}:${port}`;
         return reject(err); // Rejecting the promise with an error
+    } else if (error === 'ERR_INVALID_HOST') {
+        const err = new Error(`Invalid HOST`);
+        err.code = error;
+        err.name = `Invalid_Host_Error`;
+        err.message = `The provided host "${host}" is not in a valid format!`;
+        err.input = host;
+        return err; // Returning the promise with an error
     } else if (reject) {
         return reject(error); // Rejecting the promise with the original error
     } else {

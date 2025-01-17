@@ -6,7 +6,7 @@
 
 # netport
 
-netport is a fast, CPU-friendly, minimalist, light-weight promise-based TCP/UDP port scanner.
+Fast, CPU-friendly, minimalist, light-weight promise-based TCP/UDP port(s) scanner.
 
 
 ## Features
@@ -50,6 +50,10 @@ Once you've imported `netport` into your project, you're ready to start working 
 
 ## scanPort() function
 
+The `scanPort()` function scans a specified port on a specified host and checks whether it is open for the specified protocol (TCP or UDP).
+
+### Parameters
+
 The scanPort() function parameters are as follows -
 
 - `type`: The type of port to scan (`"TCP"` or `"UDP"`). Default is `"TCP"`.
@@ -63,22 +67,24 @@ Example demonstrating TCP port scan:
 
 ```javascript
 // First example regarding TCP port scan.
-netport.scanPort({
-     type: "TCP",
-     port: 53, // DNS port
-     host: "8.8.8.8", // Google Public DNS
-     timeout: 1000 // Set timeout to 1000 milliseconds
-})
-.then(result => {
-     console.log(result);
-     // result object contains -
-     // - success
-     // - message
-})
-.catch(err => {
-     // Handling the error.
-     console.error(err);
-});
+(async () => {
+    try {
+        const result = await netport.scanPort({
+            type: "TCP", // Specify the type of port to scan (TCP)
+            port: 53,    // DNS port (commonly used for DNS queries)
+            host: "8.8.8.8", // Google Public DNS IP address
+            timeout: 1000 // Set timeout to 1000 milliseconds
+        });
+
+        console.log(result);
+        // result object contains -
+        // - success: Indicates if the port is open
+        // - message: A message providing additional information about the scan
+    } catch (err) {
+        // Handling the error.
+        console.error(err);
+    }
+})();
 ```
 
 ### UDP port scan
@@ -87,25 +93,31 @@ Example demonstrating UDP port scan:
 
 ```javascript
 // Second example regarding UDP port scan.
-netport.scanPort({
-     type: "UDP",
-     port: 123, // NTP port
-     host: "pool.ntp.org", // Public NTP server
-     timeout: 1000 // Set timeout to 1000 milliseconds
-})
-.then(result => {
-     console.log(result);
-     // result object contains -
-     // - success
-     // - message
-})
-.catch(err => {
-     // Handling the error.
-     console.error(err);
-});
+(async () => {
+    try {
+        const result = await netport.scanPort({
+            type: "UDP", // Specify the type of port to scan (UDP)
+            port: 123,   // NTP port (commonly used for Network Time Protocol)
+            host: "pool.ntp.org", // Public NTP server
+            timeout: 1000 // Set timeout to 1000 milliseconds
+        });
+
+        console.log(result);
+        // result object contains -
+        // - success: Indicates if the port is open
+        // - message: A message providing additional information about the scan
+    } catch (err) {
+        // Handling the error.
+        console.error(err);
+    }
+})();
 ```
 
-## scanPorts() function
+## `scanPorts()` Function
+
+The `scanPorts()` function scans a range of ports on a specified host and checks whether they are open for the specified protocol (TCP or UDP).
+
+### Parameter
 
 The scanPorts() function parameters are as follows -
 
@@ -114,46 +126,69 @@ The scanPorts() function parameters are as follows -
 - `to`: The ending port number.
 - `host`: The hostname or IP address of the target.
 - `timeout`: The timeout duration in milliseconds. Default is `1000 ms`.
+- `maxConcurrency`: The maximum number of concurrent port checks to perform. Default is `100`.
 
 ### TCP ports scan
 
+Example demonstrating TCP ports scan:
+
 ```js
-// First example regarding TCP port scan.
-netport.scanPorts({
-     type: "TCP",
-     from: 1, // Starting from port 1
-     to: 100, // Till port 100
-     host: "8.8.8.8", // Google Public DNS
-     timeout: 1000 // Set timeout to 1000 milliseconds
-})
-.then(results => {
-     // Results returned is an array.
-     results.forEach(result => {
-         console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
-     });
-})
-.catch(err => console.error(err));
+// First example regarding TCP ports scan.
+(async () => {
+    try {
+        const results = await netport.scanPorts({
+            type: "TCP",        // Specify the type of ports to scan (TCP)
+            from: 1,           // Starting from port 1
+            to: 100,           // Scanning up to port 100
+            host: "8.8.8.8",   // Google Public DNS IP address
+            timeout: 1000,     // Set timeout to 1000 milliseconds for each port check
+            maxConcurrency: 50  // Optional: Set maximum concurrent connections (default is 100)
+        });
+
+        // Results returned is an array of objects.
+        results.forEach(result => {
+            console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
+            // - result.port: The port number that was scanned
+            // - result.success: Indicates if the port is open (true) or closed (false)
+            // - result.message: Additional information about the scan result
+        });
+    } catch (err) {
+        // Handling any errors that occur during the scan.
+        console.error('Error during port scan:', err);
+    }
+})();
 
 ```
 
 ### UDP ports scan
 
+Example demonstrating UDP ports scan:
+
 ```js
 // Second example regarding UDP ports scan.
-netport.scanPorts({
-     type: "UDP",
-     from: 1, // Starting from port 1
-     to: 100, // Till port 200
-     host: "pool.ntp.org", // // Public NTP server
-     timeout: 1000 // Set timeout to 1000 milliseconds 
-})
-.then(results => {
-     // Results returned is an array.
-     results.forEach(result => {
-         console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
-     });
-})
-.catch(err => console.error(err));
+(async () => {
+    try {
+        const results = await netport.scanPorts({
+            type: "UDP",            // Specify the type of ports to scan (UDP)
+            from: 1,               // Starting from port 1
+            to: 100,               // Scanning up to port 100
+            host: "pool.ntp.org",  // Public NTP server for time synchronization
+            timeout: 1000,         // Set timeout to 1000 milliseconds for each port check
+            maxConcurrency: 50      // Optional: Set maximum concurrent connections (default is 100)
+        });
+
+        // Results returned is an array of objects.
+        results.forEach(result => {
+            console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
+            // - result.port: The port number that was scanned
+            // - result.success: Indicates if the port is open (true) or closed (false)
+            // - result.message: Additional information about the scan result
+        });
+    } catch (err) {
+        // Handling any errors that occur during the scan.
+        console.error('Error during UDP port scan:', err);
+    }
+})();
 
 ```
 

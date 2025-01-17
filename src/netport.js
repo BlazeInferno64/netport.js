@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 10/01/2025
+// Last updated: 17/01/2025
 
 "use strict";
 
@@ -25,6 +25,12 @@ const checkPort = async (inputObject) => {
     const port = inputObject.port;
     const type = inputObject.type || "TCP";
     const timeout = inputObject.timeout;
+
+    // Validate the host using net module
+    if (!host || typeof host !== 'string') {
+        const customError = 'ERR_INVALID_HOST';
+        return await processError(customError, false, false, type, host, port);
+    }
 
     // Validate whether it has supported protocol or not.
     if (!supportedSchemas.has(type)) {
@@ -53,6 +59,13 @@ const checkPorts = async (inputObject) => {
     const endingPort = inputObject.to;
     const type = inputObject.type || "TCP";
     const timeout = inputObject.timeout;
+    const maxConcurrentChecks = inputObject.maxConcurrency || 100; // Set it to 100 by default 
+
+    // Validate the host using net module
+    if (!host || typeof host !== 'string') {
+        const customError = 'ERR_INVALID_HOST';
+        return await processError(customError, false, false, type, host, `${startingPort}-${endingPort}`);
+    }
 
     // Validate whether it has supported protocol or not.
     if (!supportedSchemas.has(type)) {
@@ -61,7 +74,7 @@ const checkPorts = async (inputObject) => {
     }
 
     const results = [];
-    const maxConcurrentChecks = 100; // Limit to 100 concurrent connections
+    // const maxConcurrentChecks = 100; // Limit to 100 concurrent connections
     const portChecks = [];
 
     for (let port = startingPort; port <= endingPort; port++) {
@@ -106,26 +119,31 @@ const check_IP = (ip) => {
  * @returns {Object} Returns a object which contains some info regarding blazed.js.
  */
 
-const ABOUT = () => {
-    if (!packageJson) throw new Error(`package.json files seems to be missing!\nPlease try again by downloading 'netport' again with the following command\n''npm i netport''\nin your terminal!`);
-    const aboutObject = {
-        "Name": packageJson.name,
-        "Author": packageJson.author,
-        "Version": packageJson.version,
-        "Description": packageJson.description,
-        "Respository": packageJson.repository
-    };
-    return aboutObject;
-};
+const ABOUT = Object.freeze({
+    get value() {
+        if (!packageJson) throw new Error(`package.json files seems to be missing!\nPlease try again by downloading 'netport' again with the following command\n''npm i netport''\nin your terminal!`);
+        const aboutObject = {
+            "Name": packageJson.name,
+            "Author": packageJson.author,
+            "Version": packageJson.version,
+            "Description": packageJson.description,
+            "Respository": packageJson.repository
+        };
+        return aboutObject;
+    }
+}).value;
+
 /**
  * 
  * @returns {string} returns the package version
  */
 
-const VERSION = () => {
-    if (!packageJson) throw new Error(`package.json files seems to be missing!\nPlease try again by downloading 'netport' again with the following command\n''npm i netport''\nin your terminal!`);
-    return packageJson.version;
-}
+const VERSION = Object.freeze({
+    get value() {
+        if (!packageJson) throw new Error(`package.json files seems to be missing!\nPlease try again by downloading 'netport' again with the following command\n''npm i netport''\nin your terminal!`);
+        return packageJson.version;
+    }
+}).value;
 
 module.exports = {
     scanPort: (inputObject) => checkPort(inputObject),

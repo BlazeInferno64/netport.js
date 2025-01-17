@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 31/12/2024
+// Last updated: 17/01/2025
 
 "use strict";
 
@@ -15,7 +15,7 @@ const check_TCP_PORT = (host = '127.0.0.1', port, timeout = 1000) => {
         const socket = new net.Socket();
 
         socket.on("connect", () => {
-            socket.end();
+            socket.end(); // Gracefully close the connection
             return resolve({
                 success: true,
                 message: `TCP port ${port} is open on ${host}`
@@ -23,7 +23,7 @@ const check_TCP_PORT = (host = '127.0.0.1', port, timeout = 1000) => {
         });
 
         socket.on("error", async (err) => {
-            socket.destroy();
+            socket.destroy(); // Forcefully close the socket on error
             if (err.code !== 'ECONNREFUSED') {
                 return await processError(err, reject, resolve, false, host, port);
             } else if (err.code === 'ENOTFOUND') {
@@ -40,7 +40,7 @@ const check_TCP_PORT = (host = '127.0.0.1', port, timeout = 1000) => {
             socket.destroy();
             return reject({
                 success: false,
-                message: `Timeout occured while connecting to the TCP port ${port}!`
+                message: `Timeout occured while connecting to the TCP port ${port} on ${host}!`
             })
         })
         
@@ -61,6 +61,10 @@ const test_IP = (ip) => {
         resultObj.format = 'IPv6';
     }
     return resultObj;
+}
+
+const isIP = (ip) => {
+    return net.isIP(ip);
 }
 
 module.exports = {
