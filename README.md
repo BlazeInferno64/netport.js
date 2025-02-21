@@ -20,8 +20,16 @@ Fast, CPU-friendly, minimalist, light-weight promise-based TCP/UDP port(s) scann
 
 To get started with `netport`, simply run the following command in your terminal:
 
+npm command
+
 ```bash
 $ npm i netport
+```
+
+yarn command
+
+```bash
+$ yarn add netport
 ```
 
 # Getting started
@@ -76,8 +84,9 @@ Example demonstrating TCP port scan:
             timeout: 1000 // Set timeout to 1000 milliseconds
         });
 
-        console.log(result);
+        console.log(`TCP Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
         // result object contains -
+        // - port: The port number that was scanned
         // - success: Indicates if the port is open
         // - message: A message providing additional information about the scan
     } catch (err) {
@@ -102,8 +111,9 @@ Example demonstrating UDP port scan:
             timeout: 1000 // Set timeout to 1000 milliseconds
         });
 
-        console.log(result);
+        console.log(`UDP Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
         // result object contains -
+        // - port: The port number that was scanned
         // - success: Indicates if the port is open
         // - message: A message providing additional information about the scan
     } catch (err) {
@@ -147,7 +157,7 @@ Example demonstrating TCP ports scan:
 
         // Results returned is an array of objects.
         results.forEach(result => {
-            console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
+            console.log(`TCP Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
             // - result.port: The port number that was scanned
             // - result.success: Indicates if the port is open (true) or closed (false)
             // - result.message: Additional information about the scan result
@@ -179,7 +189,7 @@ Example demonstrating UDP ports scan:
 
         // Results returned is an array of objects.
         results.forEach(result => {
-            console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
+            console.log(`UDP Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
             // - result.port: The port number that was scanned
             // - result.success: Indicates if the port is open (true) or closed (false)
             // - result.message: Additional information about the scan result

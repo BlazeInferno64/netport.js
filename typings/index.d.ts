@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 17/01/2025
+// Last updated: 21/02/2025
 
 // Type definitions for 'netport'
 
@@ -18,7 +18,7 @@ interface ResultObject {
     /**
      * The port number that was scanned (if applicable).
      */
-    port?: number; // Optional, only applicable for scanPorts
+    port?: number;
 }
 
 interface IpResultObject {
@@ -136,6 +136,26 @@ interface Netport {
      *      // result object contains -
      *      // - success
      *      // - message
+     *      // - port
+     * })
+     * .catch(err => {
+     *      // Handling the error.
+     *      console.error(err);
+     * });
+     * 
+     * // Example regarding UDP port scan.
+     * netport.scanPort({
+     *      type: "UDP",
+     *      port: 123, // DNS port
+     *      host: "pool.ntp.org", // Google Public DNS
+     *      timeout: 1000 // Set timeout to 1000 milliseconds
+     * })
+     * .then(result => {
+     *      console.log(result);
+     *      // result object contains -
+     *      // - success
+     *      // - message
+     *      // - port
      * })
      * .catch(err => {
      *      // Handling the error.
@@ -161,7 +181,7 @@ interface Netport {
      * .then(results => {
      *      // Results returned is an array.
      *      results.forEach(result => {
-     *          console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
+     *          console.log(`TCP Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
      *      });
      * })
      * .catch(err => console.error(err));
@@ -177,11 +197,11 @@ interface Netport {
      * .then(results => {
      *      // Results returned is an array.
      *      results.forEach(result => {
-     *          console.log(`Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
+     *          console.log(`UDP Port ${result.port}: ${result.success ? 'Open' : 'Closed'} - ${result.message}`);
      *      });
      * })
      * .catch(err => console.error(err));
-     * 
+     *  
      */
     scanPorts(inputObj: SecondInputObject): Promise<ResultObject[]>;
 

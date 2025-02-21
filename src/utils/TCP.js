@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 17/01/2025
+// Last updated: 21/02/2025
 
 "use strict";
 
@@ -18,7 +18,8 @@ const check_TCP_PORT = (host = '127.0.0.1', port, timeout = 1000) => {
             socket.end(); // Gracefully close the connection
             return resolve({
                 success: true,
-                message: `TCP port ${port} is open on ${host}`
+                message: `TCP port ${port} is open on ${host}`,
+                port: port
             });
         });
 
@@ -31,7 +32,8 @@ const check_TCP_PORT = (host = '127.0.0.1', port, timeout = 1000) => {
             } else {
                 return resolve({
                     success: false,
-                    message: `TCP port ${port} is closed on ${host}`
+                    message: `TCP port ${port} is closed on ${host}`,
+                    port: port
                 });
             };
         });
@@ -40,7 +42,8 @@ const check_TCP_PORT = (host = '127.0.0.1', port, timeout = 1000) => {
             socket.destroy();
             return reject({
                 success: false,
-                message: `Timeout occured while connecting to the TCP port ${port} on ${host}!`
+                message: `Timeout occured while connecting to the TCP port ${port} on ${host}!`,
+                port: port
             })
         })
         
@@ -69,5 +72,6 @@ const isIP = (ip) => {
 
 module.exports = {
     check_TCP_PORT,
-    test_IP
+    test_IP,
+    isIP
 }

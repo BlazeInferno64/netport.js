@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 17/01/2025
+// Last updated: 21/02/2025
 
 "use strict";
 
@@ -25,7 +25,8 @@ const check_UDP_PORT = (host = '127.0.0.1', port, timeout = 1000) => {
             clearTimeout(timeoutId);
             return resolve({
                 success: true,
-                message: `UDP port ${port} is open on ${host}`
+                message: `UDP port ${port} is open on ${host}`,
+                port: port
             });
         });
 

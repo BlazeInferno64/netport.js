@@ -2,7 +2,7 @@
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 17/01/2025
+// Last updated: 21/02/2025
 
 "use strict";
 
@@ -21,7 +21,7 @@ const supportedSchemas = new Set(['TCP', 'UDP']);
  * @returns {Promise} - returns whether the port is available or not.
  */
 const checkPort = async (inputObject) => {
-    const host = inputObject.host;
+    const host = inputObject.host || "127.0.0.1";
     const port = inputObject.port;
     const type = inputObject.type || "TCP";
     const timeout = inputObject.timeout;
@@ -54,7 +54,7 @@ const checkPort = async (inputObject) => {
  * @returns {Promise<any>} - Returns a promise containing the scan status.
  */
 const checkPorts = async (inputObject) => {
-    const host = inputObject.host;
+    const host = inputObject.host || "127.0.0.1";
     const startingPort = inputObject.from;
     const endingPort = inputObject.to;
     const type = inputObject.type || "TCP";
