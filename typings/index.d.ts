@@ -1,8 +1,8 @@
-// Copyright (c) 2025 BlazeInferno64 --> https://github.com/blazeinferno64.
+// Copyright (c) 2026 BlazeInferno64 --> https://github.com/blazeinferno64.
 //
 // Author(s) -> BlazeInferno64
 //
-// Last updated: 21/02/2025
+// Last updated: 28/02/2026
 
 // Type definitions for 'netport'
 
@@ -30,6 +30,52 @@ interface IpResultObject {
      * The ip address.
      */
     address: String;
+}
+
+interface DnsResult {
+    /**
+     * Whether the lookup succeeded.
+     */
+    success: boolean;
+    /**
+     * The resolved IP address (present if success is true).
+     */
+    ip?: string;
+    /**
+     * Address family (4 or 6) when lookup succeeds.
+     */
+    family?: number;
+    /**
+     * Error message when lookup fails.
+     */
+    message?: string;
+}
+
+/**
+ * Detailed information about a discovered local device.
+ */
+interface DeviceInfo {
+    ip: string;
+    status: 'online' | 'offline';
+    /** Guessed OS based on TTL and banner analysis. */
+    os: string;
+    /** Confidence score of the OS detection (0-100). */
+    confidence: number;
+    /** List of common service names detected (e.g., ["SSH", "HTTP"]). */
+    services: string[];
+    /** Raw banner strings captured from the services. */
+    banners: Record<string, string>;
+}
+
+interface LanOptions {
+    /**
+     * Timeout per ping in milliseconds (defaults to 1000).
+     */
+    timeout?: number;
+    /**
+     * Maximum concurrency for network probes (defaults to 50).
+     */
+    maxConcurrency?: number;
 }
 
 interface InputObject {
@@ -222,6 +268,49 @@ interface Netport {
     check_IP(ip: String): IpResultObject;
 
     /**
+     * 
+     * @param port - The port number to check.
+     * @returns {String} - Returns the service name associated with the given port number and type.
+     * @example 
+     * // First example regarding TCP port service name retrieval.
+     * console.log(netport.getServiceName(80));
+     * // Output: "HTTP"
+     */
+    getServiceName(port: number): String;
+
+
+    /**
+     * Resolves the given hostname to its corresponding IP address.
+     * @param hostname - The hostname to resolve.
+     * @return {Promise<DnsResult>} - Returns a promise that resolves to an object containing the success status, resolved IP address (if successful), address family (if successful), and an error message (if unsuccessful).
+     * @example
+     * netport.resolveHostname('www.google.com')
+     *   .then(result => {
+     *     if (result.success) {
+     *       console.log(`Resolved IP: ${result.ip}, Family: IPv${result.family}`);
+     *     } else {
+     *       console.error(`DNS resolution failed: ${result.message}`);
+     *     }
+     *   })
+     *   .catch(err => {
+     *     console.error(`Error during DNS resolution: ${err.message}`);
+     *   });
+     */
+    resolveHostname(hostname: string): Promise<DnsResult>;
+
+    /**
+     * Scans the local subnet for active devices and attempts to fingerprint them via TTL.
+     *
+     * @param options - Optional settings (timeout, maxConcurrency).
+     * @returns {Promise<DeviceInfo[]>} - Promise resolving to array of device info objects.
+     * @example
+     * netport.discoverLocalDevices({ timeout: 500, maxConcurrency: 20 })
+     *   .then(devices => console.log(devices))
+     *   .catch(console.error);
+     */
+    discoverLocalDevices(options?: LanOptions): Promise<DeviceInfo[]>;
+
+    /**
     * @returns {AboutObject<Object>} Returns a object which contains some info regarding netport.
     * @example 
     * console.log(netport.ABOUT); 
@@ -239,7 +328,7 @@ interface Netport {
 }
 
 /**
- * netport is a fast, CPU-friendly, minimalist, light-weight promise-based TCP/UDP port(s) scanner.
+ * netport is a fast, CPU-friendly, minimalist, light-weight promise-based network utility scanner for the Node.
  * 
  * Port scanning done right!
  * 

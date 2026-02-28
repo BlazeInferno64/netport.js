@@ -202,6 +202,42 @@ Example demonstrating UDP ports scan:
 
 ```
 
+## `discoverLocalDevices()`
+
+The `discoverLocalDevices()` function performs a high-performance "smart scan" of your local network. It identifies active devices, guesses their Operating System via TTL (Time To Live), and attempts to grab banners from common ports to increase detection confidence.
+
+The `discoverLocalDevices()` function accepts an optional configuration object:
+
+- `timeout`: The timeout for each device probe in milliseconds. Default is `1000 ms`.
+- `maxConcurrency`: The maximum number of IP addresses to probe simultaneously. Default is `50`.
+
+```js
+(async () => {
+    try {
+        console.log("Scanning local network... please wait.");
+        
+        const devices = await netport.discoverLocalDevices({
+            timeout: 800,
+            maxConcurrency: 60
+        });
+
+        console.log(`Found ${devices.length} active devices:`);
+        
+        devices.forEach(device => {
+            console.log(`IP Address : ${device.ip}`);
+            console.log(`Status     : ${device.status}`);
+            console.log(`OS (Guess) : ${device.os}`);
+            console.log(`Confidence : ${device.confidence}%`);
+            
+            if (device.services.length > 0) {
+                console.log(`Services   : ${device.services.join(', ')}`);
+            }
+        });
+    } catch (err) {
+        console.error('Error during network discovery:', err);
+    }
+})();
+
 # LICENSE
 
 `netport` is released under the MIT License.

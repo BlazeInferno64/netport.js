@@ -9,10 +9,11 @@
 const { processError } = require("./utils/errors");
 const { check_TCP_PORT, test_IP, } = require("./utils/TCP");
 const { check_UDP_PORT } = require("./utils/UDP");
+const { resolveHostname } = require("./utils/dns");
+const { identifyNetwork } = require("./utils/network");
 
 const packageJson = require("../package.json");
 const supportedSchemas = new Set(['TCP', 'UDP']);
-
 
 /**
  * Scans and checks a host's port.
@@ -48,62 +49,58 @@ const checkPort = async (inputObject) => {
 }
 
 /**
- * Scans and checks the given TCP/UDP ports.
- * 
- * @param {*} inputObject - The object containing the scan info.
- * @returns {Promise<any>} - Returns a promise containing the scan status.
+ * Scans ports using a sliding window for maximum efficiency.
  */
 const checkPorts = async (inputObject) => {
-    const host = inputObject.host || "127.0.0.1";
-    const startingPort = inputObject.from;
-    const endingPort = inputObject.to;
-    const type = inputObject.type || "TCP";
-    const timeout = inputObject.timeout;
-    const maxConcurrentChecks = inputObject.maxConcurrency || 100; // Set it to 100 by default 
+    const {
+        host = "127.0.0.1",
+        from: start,
+        to: end,
+        type = "TCP",
+        timeout,
+        maxConcurrency = 100
+    } = inputObject;
 
-    // Validate the host using net module
-    if (!host || typeof host !== 'string') {
-        const customError = 'ERR_INVALID_HOST';
-        return await processError(customError, false, false, type, host, `${startingPort}-${endingPort}`);
-    }
-
-    // Validate whether it has supported protocol or not.
-    if (!supportedSchemas.has(type)) {
-        const customError = 'ERR_TYPE';
-        return await processError(customError, false, false, type, host, `ports ${startingPort} - ${endingPort}`);
-    }
+    // Validation
+    if (!host || typeof host !== 'string') return processError('ERR_INVALID_HOST', false, false, type, host, `${start}-${end}`);
+    if (!supportedSchemas.has(type)) return processError('ERR_TYPE', false, false, type, host, `range ${start}-${end}`);
 
     const results = [];
-    // const maxConcurrentChecks = 100; // Limit to 100 concurrent connections
-    const portChecks = [];
+    const checker = type === 'TCP' ? check_TCP_PORT : check_UDP_PORT;
+    
+    let currentPort = start;
+    const activePromises = new Set();
 
-    for (let port = startingPort; port <= endingPort; port++) {
-        portChecks.push(port);
-    }
+    // Run a single scan and then immediately start the next one when it finishes, ensuring we never exceed maxConcurrency
+    const runNext = async () => {
+        if (currentPort > end) return;
 
-    // Function to process a batch of ports
-    const processBatch = async (batch) => {
-        const batchResults = await Promise.all(batch.map(async (port) => {
-            try {
-                const result = type === 'TCP'
-                    ? await check_TCP_PORT(host, port, timeout)
-                    : await check_UDP_PORT(host, port, timeout);
-                return { port, success: result.success, message: result.message };
-            } catch (error) {
-                return { port, success: false, message: error.message };
-            }
-        }));
-        results.push(...batchResults);
+        const port = currentPort++;
+        const promise = checker(host, port, timeout)
+            .then(res => ({ port, success: res.success, message: res.message }))
+            .catch(err => ({ port, success: false, message: err.message }));
+
+        activePromises.add(promise);
+        
+        // When the promise resolves, store the result and start the next scan
+        const result = await promise;
+        results.push(result);
+        activePromises.delete(promise);
+        
+        await runNext();
     };
 
-    // Process ports in batches
-    for (let i = 0; i < portChecks.length; i += maxConcurrentChecks) {
-        const batch = portChecks.slice(i, i + maxConcurrentChecks);
-        await processBatch(batch);
+    // Initial batch up to maxConcurrency
+    const initialBatch = [];
+    for (let i = 0; i < Math.min(maxConcurrency, end - start + 1); i++) {
+        initialBatch.push(runNext());
     }
-    // Lastly return the results
-    return results;
-}
+
+    await Promise.all(initialBatch);
+    
+    // Sort results by port number before returning (since they finish out of order)
+    return results.sort((a, b) => a.port - b.port);
+};
 
 /**
  * Check the type of ip address entered.
@@ -116,7 +113,30 @@ const check_IP = (ip) => {
 }
 
 /**
- * @returns {Object} Returns a object which contains some info regarding blazed.js.
+ * Resolves a port number to its common service name.
+ * @param {number} port 
+ * @returns {string} - The service name or 'unknown'
+ */
+const getServiceName = (port) => {
+    const commonPorts = {
+        21: "FTP",
+        22: "SSH",
+        23: "Telnet",
+        25: "SMTP",
+        53: "DNS",
+        80: "HTTP",
+        110: "POP3",
+        143: "IMAP",
+        443: "HTTPS",
+        3306: "MySQL",
+        5432: "PostgreSQL",
+        8080: "HTTP-Proxy"
+    };
+    return commonPorts[port] || "unknown";
+};
+
+/**
+ * @returns {Object} Returns a object which contains some info regarding netport.js.
  */
 
 const ABOUT = Object.freeze({
@@ -149,6 +169,9 @@ module.exports = {
     scanPort: (inputObject) => checkPort(inputObject),
     scanPorts: (inputObject) => checkPorts(inputObject),
     check_IP,
+    getServiceName,
+    resolveHostname,
+    discoverLocalDevices: (options) => identifyNetwork(options),
     ABOUT,
     VERSION
 }
