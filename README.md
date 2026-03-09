@@ -6,7 +6,7 @@
 
 # netport
 
-Fast, CPU-friendly, minimalist, light-weight promise-based TCP/UDP port(s) scanner.
+Fast, CPU-friendly, minimalist, light-weight promise-based network utility tool for the Node.
 
 
 ## Features
@@ -237,6 +237,8 @@ The `discoverLocalDevices()` function accepts an optional configuration object:
         console.error('Error during network discovery:', err);
     }
 })();
+
+```
 
 # LICENSE
 
